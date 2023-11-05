@@ -1,0 +1,54 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /api/rm-webservice
+  tomcat:
+    connection-timeout: -1
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  jpa:
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+        ddl-auto: update
+  rmallocdatasource:
+    hikari:
+      maximum-pool-size: 50
+      connection-timeout: 60000
+      idle-timeout: 60000
+      max-lifetime: 1800000
+      minimum-idle: 10
+    url: ${DATALAKE_DB_URL}/${RM_ALLOC_DB_NAME}
+    username: ${DATALAKE_DB_USERNAME}
+    password: ${DATALAKE_DB_PASSWORD}
+  cloud:
+    azure:
+      active-directory:
+        enabled: true
+        credential:
+          client-id: ${AZURE_AD_CLIENT_ID}
+    aws:
+      credentials:
+        accessKey: ${AWS_ACCESS_KEY}
+        secretKey: ${AWS_SECRET_KEY}
+      bucketName: ${AWS_BUCKET_NAME}
+
+aws:
+  path: ${AWS_BUCKET_PATH}
+
+api:
+  access-key: ${LAMBDA_ACCESS_KEY}
+  url: ${LAMBDA_URL}
+
+auth:
+  client-id: ${AZURE_AD_CLIENT_ID}
+  tenant-id: ${AUTH_TENANT_ID}
+  scope: ${AUTH_SCOPE}
+  grant-type: client_credentials
+  login-base-url: https://login.microsoftonline.com
+  token-uri: /oauth2/v2.0/token

@@ -1,0 +1,4 @@
+INSERT INTO `QP_DW_RMALLOC`.`config_permissions` (`PermissionID`, `Permission`) VALUES ('37', 'update_market_list_after_30_days');
+INSERT INTO `QP_DW_RMALLOC`.`config_permissions` (`PermissionID`, `Permission`) VALUES ('38', 'update_market_list_till_30_days');
+INSERT INTO `QP_DW_RMALLOC`.`config_role_permission` (`Role`, `PermissionID`, `priority`) VALUES ('INVENTORYANALYST2', '{\"role\": \"INVENTORY ANALYST\", \"permissions\": [1, 2, 4, 6, 7, 8, 9, 10, 11, 20, 22, 23, 24, 25, 26, 27, 28, 29, 33, 34, 38]}', '3');
+UPDATE `QP_DW_RMALLOC`.`config_role_permission` SET `PermissionID` = '{\"role\": \"INVENTORY ANALYST\", \"permissions\": [1, 2, 4, 6, 7, 8, 9, 10, 11, 20, 22, 23, 24, 25, 26, 27, 28, 29, 33, 34, 37]}' WHERE (`Role` = 'INVENTORYANALYST');

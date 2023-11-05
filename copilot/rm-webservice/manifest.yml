@@ -1,0 +1,101 @@
+# The manifest for the "nav-ods-webservice" service.
+# Read the full specification for the "Load Balanced Web Service" type at:
+#  https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/
+
+# Your service name will be used in naming your resources like log groups, ECS services, etc.
+name: rm-webservice
+type: Load Balanced Web Service
+
+# Distribute traffic to your service.
+http:
+  # Requests to this path will be forwarded to your service.
+  # To match all requests you can use the "/" path.
+  path: 'api/rm-webservice'
+  # You can specify a custom health check path. The default is "/".
+  healthcheck: '/api/rm-webservice/actuator/health'
+  alias: '${COPILOT_ENVIRONMENT_NAME}.qp.akasaair.com'
+
+# Configuration for your containers and service.
+image:
+  # Docker build arguments. For additional overrides: https://aws.github.io/copilot-cli/docs/manifest/lb-web-service/#image-build
+  build: Dockerfile
+  # Port exposed through your container to route traffic to it.
+  port: 8081
+
+cpu: 1024       # Number of CPU units for the task.
+memory: 2048    # Amount of memory in MiB used by the task.
+count: 1       # Number of tasks that should be running in your service.
+exec: true     # Enable running commands in your container.
+
+observability:
+  tracing: awsxray
+
+variables:
+  # DL db config
+  RM_ALLOC_DB_NAME: QP_DW_RMALLOC
+  DATALAKE_DB_URL: jdbc:mysql://internal-dev.cd7glmg3mmed.ap-south-1.rds.amazonaws.com:3306
+  DATALAKE_DB_USERNAME: devAdmin
+  # AWS config
+  AWS_BUCKET_NAME: qp-applications
+  # Lambda Functions
+  LAMBDA_URL: test
+
+  # AZURE config
+  AZURE_AD_CLIENT_ID: 71ec5d6b-3f04-4567-8bdc-a51ccb074404
+  AUTH_TENANT_ID: 33309af5-268f-4abe-b867-7a450d42c81a
+  AUTH_SCOPE: 71ec5d6b-3f04-4567-8bdc-a51ccb074404/.default
+
+secrets:
+  DATALAKE_DB_PASSWORD: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/RM_WEBSERVICE_DATALAKE_DB_PASSWORD
+  AWS_ACCESS_KEY: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/RM_WEBSERVICE_AWS_ACCESS_KEY
+  AWS_SECRET_KEY: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/RM_WEBSERVICE_AWS_SECRET_KEY
+  LAMBDA_ACCESS_KEY: /copilot/${COPILOT_APPLICATION_NAME}/${COPILOT_ENVIRONMENT_NAME}/secrets/RM_WEBSERVICE_LAMBDA_ACCESS_KEY
+
+# You can override any of the values defined above by environment.
+environments:
+  dev:
+    count: 1
+    deployment:
+      rolling: 'recreate'
+    variables:
+      RM_ALLOC_DB_NAME: qp_dw_rmalloc
+      AWS_BUCKET_PATH: dev/rm-admin/
+
+  test:
+    count: 1
+    cpu: 2048
+    memory: 4096
+    range:
+      min: 1
+      max: 4
+      cpu_percentage: 70
+      memory_percentage: 80
+      requests: 1000
+      spot_from: 3
+    variables:
+      # DL db config
+      DATALAKE_DB_URL: jdbc:mysql://esb-db.cd7glmg3mmed.ap-south-1.rds.amazonaws.com:3306
+      DATALAKE_DB_USERNAME: DBSAAdmin
+      # AWS
+      AWS_BUCKET_PATH: test/rm-admin/
+
+  prod:
+    http:
+      alias: 'webservices.qp.akasaair.com'
+    cpu: 2048
+    memory: 4096
+    range:
+      min: 1
+      max: 4
+      cpu_percentage: 70
+      memory_percentage: 80
+      requests: 1000
+      spot_from: 3
+    variables:
+      # DL db config
+      DATALAKE_DB_URL: jdbc:mysql://rm-prod-db.cd7glmg3mmed.ap-south-1.rds.amazonaws.com:3306
+      DATALAKE_DB_USERNAME: rmappuser
+      # AWS
+      AWS_BUCKET_PATH: prod/rm-admin/
+      # Lambda
+      LAMBDA_URL: https://iuf5oc6rxe.execute-api.ap-south-1.amazonaws.com/default/rm-allocation-serverless-funcs_rm-allocation-fetch-inputs

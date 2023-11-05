@@ -1,0 +1,1 @@
+INSERT INTO `config_column_names` (`tableName`, `columns`) VALUES ('run_summary', 'RunId,Origin,Destin,FltNum,DepDate,BookedLoad,TgtLoad,Dev_BKGCurve,MktFare_Min,AirlineCode_Min,FlightNumber_Min,MktFare_Max,AirlineCode_Max,FlightNumber_Max,anchorFare,OpenRBD,SellingFare,fareOffset,HowDetermined,Channel,StrategyReference,TimeRange,fareAnchor,dlfBand,ndoBand,Backstop');
